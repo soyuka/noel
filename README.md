@@ -25,6 +25,8 @@ Or more verbose:
 node -v
 ```
 
+![Screenshot](http://i.imgur.com/WgLR8Qp.png)
+
 ## Configuration
 
 Open `config.js` and edit the data!
