@@ -1,0 +1,17 @@
+{
+  "name": "noel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "noel.js",
+  "scripts": {
+    "test": "node noel.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nodemailer": "^2.6.4",
+    "nodemailer-smtp-transport": "^2.7.2"
+  },
+  "private": true
+}
