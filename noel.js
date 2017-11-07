@@ -1,13 +1,10 @@
 const util = require('util')
-const nodemailer = require('nodemailer')
-const crypto = require('crypto')
 const fs = require('fs')
 
 const config = require('./config.js')
-const debug = !~process.argv.indexOf('send')
 const verbose = ~process.argv.indexOf('-v')
+const {crypt} = require('./crypt')
 
-const transporter = nodemailer.createTransport(config.smtp)
 const people = config.people
 
 function compute () {
@@ -38,49 +35,26 @@ const promises = []
 for(let i in results) {
   const person = people.find(e => e.name === i)
   const givesTo = people.find(e => e.name === results[i])
-
-  const mailOptions = {
-    from: config.from,
-    to: person.email,
-    subject: config.subject(person, givesTo),
-    html: config.message(person, givesTo)
-  }
+  const message = config.message(person, givesTo)
 
   promises.push(new Promise((resolve, reject) => {
-    if (!debug) {
-      transporter.sendMail(mailOptions, function(error, info) {
-        if (error) { return reject(error) }
-        resolve(info)
-      })
-      return
-    }
-
-
     if (verbose) {
-      console.log(`
-  From: ${mailOptions.from}
-  To: ${mailOptions.to}
-  Subject: ${mailOptions.subject}
-  Message:
-        ${mailOptions.html}
-==================================================`)
-      resolve()
-    } else {
-      resolve()
+      console.log(person, message)
     }
+
+    fs.writeFile(`./data/${person.email}`, crypt(message, person.email), function (err) {
+      if (err) {
+        reject(err)
+        return
+      }
+
+      resolve()
+    })
   }))
 }
 
 Promise.all(promises)
 .then(function() {
-  if (!debug) {
-    console.log('All sent!');
-  } else {
-    for (let i in results) {
-      console.log(`${i} => ${results[i]}`)
-    }
-  }
-
   process.exit(0)
 })
 .catch(function(err) {
